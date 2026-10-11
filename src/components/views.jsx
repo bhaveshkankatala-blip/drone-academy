@@ -254,7 +254,7 @@ export function ReelsView({ unlocked }) {
 export function PlanView({ go }) {
   return (
     <div className="stack plan">
-      <div className="row between"><h2>Your drone project plan</h2><button className="btn ghost" onClick={() => window.print()}><Icon name="print" /> Print / PDF</button></div>
+      <div className="row between"><h2>Your drone project plan</h2>{!window.__AERONET_EMBED__ && <button className="btn ghost" onClick={() => window.print()}><Icon name="print" /> Print / PDF</button>}</div>
       <p className="muted">Your project starts in about 1–2 months. Six prep weeks get you to day 1 with requirements, sizing and a draft BOM already done; then eight project weeks with a review gate at the end of each.</p>
       <h3>Phase A — Preparation (6 weeks, ~8–10 h/week)</h3>
       <div className="timeline">
