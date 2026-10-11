@@ -2,10 +2,13 @@ import { modulesA } from './modules-a.js';
 import { modulesB } from './modules-b.js';
 import { modulesC } from './modules-c.js';
 
+import { EXTRA } from './extra.js';
+
 export const MODULES = [...modulesA, ...modulesB, ...modulesC].map((m, i) => ({
   ...m,
   n: i + 1,
-  quiz: m.quiz.map((q, j) => ({ ...q, key: `${m.id}:${j}`, module: m.id })),
+  reels: [...m.reels, ...(EXTRA[m.id]?.reels || [])],
+  quiz: [...m.quiz, ...(EXTRA[m.id]?.quiz || [])].map((q, j) => ({ ...q, key: `${m.id}:${j}`, module: m.id })),
 }));
 
 export const byId = Object.fromEntries(MODULES.map((m) => [m.id, m]));
