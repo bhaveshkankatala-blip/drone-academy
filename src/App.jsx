@@ -485,6 +485,18 @@ export default function DroneBTechAcademy() {
   const [unlockedLevels, setUnlockedLevels] = useState([1]);
   const [xp, setXp] = useState(0);
 
+  // Native PWA Install Prompt State
+  const [deferredPrompt, setDeferredPrompt] = useState(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatMessages, setChatMessages] = useState([
     { role: 'model', text: 'Hello Engineer. I am your Gemini AI Assistant. Ask me anything about Aerodynamics, Control Systems, RF, or Embedded Electronics.' }
@@ -514,7 +526,17 @@ export default function DroneBTechAcademy() {
     }
   };
 
-  const handleDownloadApp = () => {
+  const handleDownloadApp = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const choice = await deferredPrompt.userChoice;
+      if (choice?.outcome === 'accepted') {
+        setToastMsg("Installing AeroNet to your device!");
+      }
+      setDeferredPrompt(null);
+      return;
+    }
+
     // Create a downloadable backup of the curriculum for offline study
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(curriculumData, null, 2));
     const downloadAnchorNode = document.createElement('a');
@@ -524,8 +546,8 @@ export default function DroneBTechAcademy() {
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
 
-    setToastMsg("Offline curriculum downloaded! To install the full app, use your browser's 'Add to Home Screen' or 'Install' feature.");
-    setTimeout(() => setToastMsg(null), 5000);
+    setToastMsg("To install on mobile: Open browser menu (⋮ or Share icon) → select 'Add to Home Screen' / 'Install App'.");
+    setTimeout(() => setToastMsg(null), 6000);
   };
 
   const handleSendMessage = async () => {
