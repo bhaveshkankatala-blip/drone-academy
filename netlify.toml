@@ -2,7 +2,17 @@
   command = "npm run build"
   publish = "dist"
 
+[functions]
+  directory = "netlify/functions"
+
+# SPA fallback (the app uses #/ routes, so this mostly serves direct hits on /)
 [[redirects]]
   from = "/*"
   to = "/index.html"
   status = 200
+
+# Never let browsers cache the service worker itself
+[[headers]]
+  for = "/sw.js"
+  [headers.values]
+    Cache-Control = "no-cache"

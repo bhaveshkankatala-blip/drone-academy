@@ -1,47 +1,44 @@
-# AeroNet [B.Tech EEE Drone Academy] 🛸
+# AeroNet Drone Academy 🛸 (v2)
 
-An interactive educational platform designed for 2nd-year B.Tech Electrical & Electronics Engineering (EEE) students mastering drone flight dynamics, motor matrices, power electronics, embedded sensor fusion, control systems (PID), and RF telemetry.
+Drone engineering from first principles for B.Tech EEE students — physics, motors, ESCs, batteries, sensors, control, firmware, RF, design and autonomy — with solved numericals, live simulators, labs, quizzes, a reel mode for low-energy days, and an 8-week project plan.
 
-## Features
+## What's inside
 
-- **Cyberpunk HUD & Interactive Map**: Visual learning progression with locked and unlocked nodes.
-- **5 Comprehensive Modules**:
-  1. Aerodynamics & Motor Matrix
-  2. Power Electronics: MOSFETs to ESCs
-  3. Embedded MCU & Sensor Fusion (MPU6050, SPI/I2C, Complementary Filter)
-  4. Control Systems (PID Tuning & Step Response)
-  5. RF Communication & Antenna Design
-- **Handwritten Engineering Derivations**: Step-by-step vector mechanics and equations rendered in real-time.
-- **Interactive Technical Assessments**: Multiple-choice exams at each level to unlock subsequent data tiers.
-- **Gemini AI Uplink**: Built-in AI engineering tutor for on-demand explanations.
-- **Offline Protocol**: Backup and study the curriculum offline.
+- **12 modules** in 4 tracks (Foundations · Power train · Brains · Links & making it real). Each has: learning outcomes, theory with KaTeX equations, grid-paper derivations, original solved numericals with step-by-step solutions, "practise more from" book pointers, a hands-on lab with a checklist, industry skills, curated resources, and a 6-question quiz with explanations.
+- **8 interactive simulators** backed by a unit-tested physics library (`src/lib/physics.js`): hover power (momentum theory), mixer matrix, BLDC operating point, LiPo sag/flight time, complementary filter, rate-loop PID tuner, RF link budget, first-pass sizing.
+- **Tests:** quick quiz, 20-minute mock test, 90-second rapid fire, weak-spot drill (questions you got wrong).
+- **Reels:** a vertical swipe feed of flash cards, mini-MCQs and YouTube Shorts / Instagram links per topic; a *revision session* filter replays passed modules and your mistakes.
+- **Project plan:** 6 prep weeks + 8 project weeks with review gates, a starter BOM and a risk table (printable).
+- **Tutor:** optional AI tutor through a Netlify Function (API key stays server-side).
+- Progress, XP, streaks and lab checklists are saved on the device. Works offline after the first visit (PWA).
 
-## Getting Started Locally
+See **AUDIT.md** for the bugs and content errors fixed from v1.
 
-### Prerequisites
-- [Node.js](https://nodejs.org/) (v18+)
+## Run locally
 
-### Installation
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/bhaveshkankatala-blip/drone-academy.git
-   cd drone-academy
-   ```
+```bash
+npm install
+npm run dev        # http://localhost:3000
+npm test           # physics unit tests (node:test, no extra packages)
+npm run build      # production build in dist/
+```
 
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
+## Enable the AI tutor (optional)
 
-3. (Optional) Set up Gemini AI Assistant:
-   Create a `.env` file in the root directory:
-   ```env
-   VITE_GEMINI_API_KEY=your_gemini_api_key_here
-   ```
+In Netlify → Site configuration → Environment variables:
 
-4. Launch the local development server:
-   ```bash
-   npm run dev
-   ```
+- `GEMINI_API_KEY` = your key
+- `GEMINI_MODEL` (optional) = a current model id from Google's model list
 
-5. Open [http://localhost:3000](http://localhost:3000) in your browser.
+Do **not** put the key in a `VITE_` variable — those are compiled into the public JavaScript.
+
+## Editing content
+
+Modules live in `src/content/modules-{a,b,c}.js` as plain objects. Text supports a tiny markup: `$inline math$`, `$$display math$$`, `**bold**`, `` `code` ``, lines starting with `- ` (bullets) or `1. ` (numbered), `| tables |`, `> callout`, fenced code blocks and `[[fig:name]]` for the figures in `src/components/figures.jsx`.
+
+Numericals are original problems; book pointers say where to practise more. Please don't paste copyrighted textbook pages or problem sets into the app.
+
+## Notes
+
+- `lucide-react` and Tailwind are no longer used by the code; they are left in `package.json` so the existing lockfile keeps working. Remove them with `npm uninstall lucide-react tailwindcss postcss autoprefixer` and delete `postcss.config.js` / `tailwind.config.js` if you like.
+- KaTeX is vendored in `public/vendor/katex` (MIT licence) so equations render offline.
