@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { MODULES, byId, ALL_QUESTIONS, PLAN } from '../content/index.js';
 import { FORMULAS } from '../content/formulas.js';
+import { TOOLS, TOOL_CATEGORIES, ROADMAP, TRACKS_CAREER } from '../content/tools.js';
 import { useProgress, recordQuiz, addXp, update } from '../lib/store.js';
 import { Icon, Rich, ExtLink, ytShorts, igTag, Tex } from './ui.jsx';
 
@@ -350,6 +351,51 @@ export function FormulasView() {
           <h3><a href={`#/m/${g.id}`} style={{ color: byId[g.id].color }}>{byId[g.id].n}. {byId[g.id].title}</a></h3>
           <div className="fgrid">{g.items.map(([name, tex, note]) => (
             <div key={name} className="frow"><span className="fname">{name}</span><span className="fmath"><Tex m={tex} /></span>{note && <span className="muted small">{note}</span>}</div>
+          ))}</div>
+        </section>
+      ))}
+    </div>
+  );
+}
+
+/* ---------------- Software toolkit ---------------- */
+const COST = { free: 'Free', student: 'Student licence', paid: 'Paid' };
+export function ToolsView() {
+  const [cat, setCat] = useState('all');
+  const [freeOnly, setFreeOnly] = useState(false);
+  const [q, setQ] = useState('');
+  const list = TOOLS.filter((t) => (cat === 'all' || t.c === cat) && (!freeOnly || t.cost === 'free') && (!q || (t.n + ' ' + t.what + ' ' + t.where).toLowerCase().includes(q.toLowerCase())));
+  const cats = TOOL_CATEGORIES.filter((c) => list.some((t) => t.c === c.id));
+  return (
+    <div className="stack tools">
+      <h2>Software toolkit for an EEE engineer</h2>
+      <p className="muted">Not just drones: the software used across embedded systems, power electronics, power systems, PCB and chip design, automation, robotics and everyday engineering. Start with the roadmap, then explore by category.</p>
+      <div className="tiles roadmap">{ROADMAP.map((r) => (
+        <div key={r.when} className="tile"><h3>{r.when}</h3><ul>{r.items.map((i) => <li key={i}>{i}</li>)}</ul></div>
+      ))}</div>
+      <div className="card"><h3>Pick a track: tools each career expects</h3>
+        <div className="table-wrap"><table><thead><tr><th>Track</th><th>Core software</th></tr></thead><tbody>{TRACKS_CAREER.map(([a, b]) => <tr key={a}><td><b>{a}</b></td><td>{b}</td></tr>)}</tbody></table></div>
+      </div>
+      <div className="tool-filters">
+        <input id="tool-search" value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search tools (e.g. PWM, grid, PCB, Python)" />
+        <label className="toggle small-toggle"><input type="checkbox" checked={freeOnly} onChange={(e) => setFreeOnly(e.target.checked)} /> <span>Free only</span></label>
+      </div>
+      <div className="chips scroll-chips">
+        <button className={'chip link ' + (cat === 'all' ? 'on' : '')} onClick={() => setCat('all')}>All ({TOOLS.length})</button>
+        {TOOL_CATEGORIES.map((c) => <button key={c.id} className={'chip link ' + (cat === c.id ? 'on' : '')} onClick={() => setCat(c.id)}>{c.name}</button>)}
+      </div>
+      {cats.length === 0 && <p className="card">No tools match. Clear the search or the free-only filter.</p>}
+      {cats.map((c) => (
+        <section key={c.id}>
+          <h3 className="track">{c.name}</h3>
+          <p className="muted small">{c.why}</p>
+          <div className="tool-grid">{list.filter((t) => t.c === c.id).map((t) => (
+            <div key={t.n} className="tool">
+              <div className="row between"><b>{t.n}</b><span className={'cost ' + t.cost}>{COST[t.cost]}</span></div>
+              <p className="small">{t.what}</p>
+              <p className="small muted"><b>Used in:</b> {t.where}</p>
+              <div className="row"><ExtLink className="pill small" href={t.url}>Official site</ExtLink><ExtLink className="pill small yt" href={'https://www.youtube.com/results?search_query=' + encodeURIComponent(t.yt)}><Icon name="play" size={12} /> Tutorials</ExtLink></div>
+            </div>
           ))}</div>
         </section>
       ))}

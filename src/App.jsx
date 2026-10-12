@@ -3,7 +3,7 @@ import { MODULES, byId, TRACKS } from './content/index.js';
 import { useProgress, update, touchStreak, resetAll } from './lib/store.js';
 import { Icon, Rich, ExtLink, ytSearch } from './components/ui.jsx';
 import { SIMS } from './components/sims.jsx';
-import { Quiz, TestsView, ReelsView, PlanView, Tutor, FormulasView } from './components/views.jsx';
+import { Quiz, TestsView, ReelsView, PlanView, Tutor, FormulasView, ToolsView } from './components/views.jsx';
 
 function useHash() {
   const [h, setH] = useState(() => window.location.hash || '#/');
@@ -39,7 +39,7 @@ export default function App() {
     ['tests', 'test', 'Tests', '#/tests'],
     ['plan', 'plan', 'Project', '#/plan'],
   ];
-  const topExtra = [['formulas', 'calc', 'Formulas', '#/formulas']];
+  const topExtra = [['tools', 'code', 'Software', '#/tools'], ['formulas', 'calc', 'Formulas', '#/formulas']];
   const active = view === 'm' ? 'learn' : view;
   return (
     <div className={'app ' + (view === 'reels' ? 'is-reels' : '')}>
@@ -61,6 +61,7 @@ export default function App() {
         {view === 'tests' && <TestsView unlocked={unlocked} />}
         {view === 'plan' && <PlanView go={go} />}
         {view === 'formulas' && <FormulasView />}
+        {view === 'tools' && <ToolsView />}
       </main>
 
       <nav className="bottomnav">{nav.map(([k, ic, label, to]) => <a key={k} href={to} className={active === k ? 'on' : ''}><Icon name={ic} size={20} /><span>{label}</span></a>)}
@@ -92,6 +93,7 @@ function MapView({ p, unlocked, go }) {
             {last && last.id !== nextMod.id && !p.passed[nextMod.id] && <button className="btn ghost" onClick={() => go(`#/m/${nextMod.id}`)}>Next to clear: {nextMod.title}</button>}
             <a className="btn ghost" href="#/reels"><Icon name="reels" size={16} /> Not in the mood? Reels</a>
             <a className="btn ghost" href="#/formulas"><Icon name="calc" size={16} /> Formula sheet</a>
+            <a className="btn ghost" href="#/tools"><Icon name="code" size={16} /> Software toolkit</a>
           </div>
         </div>
         <div className="ring" style={{ '--p': pct }}><b>{pct}%</b><span>{passedCount}/{MODULES.length} cleared</span></div>

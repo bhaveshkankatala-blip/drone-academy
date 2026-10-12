@@ -26,6 +26,7 @@ const P = {
   print: 'M6 9V3h12v6M6 18H4v-7h16v7h-2M6 14h12v7H6z',
   shuffle: 'M16 3h5v5M4 20 21 3M21 16v5h-5M15 15l6 6M4 4l5 5',
   timer: 'M10 2h4M12 14l3-3M12 22a8 8 0 1 0 0-16 8 8 0 0 0 0 16Z',
+  code: 'M16 18l6-6-6-6M8 6l-6 6 6 6',
 };
 export function Icon({ name, size = 18, className = '', style }) {
   return (

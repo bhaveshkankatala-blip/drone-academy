@@ -1,8 +1,10 @@
 // AeroNet service worker.
 // Pages: network-first (so a new deploy is picked up immediately, cached copy only when offline).
 // Hashed build assets + vendored KaTeX: cache-first (their file names change when content changes).
-const CACHE = 'aeronet-v2';
-const SHELL = ['/', '/index.html', '/manifest.json', '/vendor/katex/katex.min.js', '/vendor/katex/katex.min.css'];
+const CACHE = 'aeronet-v3';
+// Paths are relative to this file, so the app works at / (Netlify) and at /repo/ (GitHub Pages).
+const SHELL = ['./', './index.html', './manifest.json', './vendor/katex/katex.min.js', './vendor/katex/katex.min.css'];
+const INDEX = new URL('./index.html', self.location).href;
 
 self.addEventListener('install', (event) => {
   event.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).catch(() => {}));
@@ -21,22 +23,22 @@ self.addEventListener('fetch', (event) => {
   if (req.method !== 'GET') return;
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return; // fonts, YouTube etc. go straight to the network
-  if (url.pathname.startsWith('/.netlify/')) return; // never cache the tutor function
+  if (url.pathname.includes('/.netlify/')) return; // never cache the tutor function
 
   if (req.mode === 'navigate') {
     event.respondWith(
       fetch(req)
         .then((res) => {
           const copy = res.clone();
-          caches.open(CACHE).then((c) => c.put('/index.html', copy));
+          caches.open(CACHE).then((c) => c.put(INDEX, copy));
           return res;
         })
-        .catch(() => caches.match('/index.html'))
+        .catch(() => caches.match(INDEX))
     );
     return;
   }
 
-  if (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/vendor/') || url.pathname.endsWith('.png')) {
+  if (url.pathname.includes('/assets/') || url.pathname.includes('/vendor/') || url.pathname.endsWith('.png')) {
     event.respondWith(
       caches.match(req).then(
         (hit) =>

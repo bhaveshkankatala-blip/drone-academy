@@ -3,17 +3,17 @@
   "name": "AeroNet Drone Academy [B.Tech EEE]",
   "icons": [
     {
-      "src": "/icon-192.png",
+      "src": "icon-192.png",
       "type": "image/png",
       "sizes": "192x192"
     },
     {
-      "src": "/icon-512.png",
+      "src": "icon-512.png",
       "type": "image/png",
       "sizes": "512x512"
     }
   ],
-  "start_url": "/",
+  "start_url": "./",
   "background_color": "#07090d",
   "theme_color": "#07090d",
   "display": "standalone",

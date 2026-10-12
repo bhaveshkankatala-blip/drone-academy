@@ -28,6 +28,12 @@ export const FORMULAS = [
     ['Energy', String.raw`E_{Wh} = N\cdot 3.7\cdot C_{Ah}`, ''],
     ['C-rate', String.raw`C = I/C_{Ah}`, ''],
   ] },
+  { id: 'mcu', items: [
+    ['Timer PWM', String.raw`f = \frac{f_{tim}}{(PSC+1)(ARR+1)},\; D = \frac{CCR}{ARR+1}`, ''],
+    ['ADC LSB', String.raw`\text{LSB} = V_{ref}/2^N`, ''],
+    ['UART throughput', String.raw`\text{bytes/s} = \text{baud}/10`, '8N1'],
+    ['CPU load of an ISR', String.raw`\text{load} = t_{ISR}\,f_{ISR}`, ''],
+  ] },
   { id: 'sensing', items: [
     ['Complementary filter', String.raw`\hat\theta_k = \alpha(\hat\theta_{k-1}+\omega\Delta t)+(1-\alpha)\theta_{acc}`, ''],
     ['Its time constant', String.raw`\tau = \alpha\Delta t/(1-\alpha),\; f_c = 1/(2\pi\tau)`, ''],

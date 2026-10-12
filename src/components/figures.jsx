@@ -1,4 +1,5 @@
 import React from 'react';
+import { FIGS2 } from './figures2.jsx';
 
 // Hand-drawn style engineering figures. All scale to width; colours come from CSS variables.
 const Fig = ({ caption, vb, children }) => (
@@ -124,4 +125,4 @@ export function QuadFig() {
   );
 }
 
-export const FIGS = { system: SystemFig, cascade: CascadeFig, bridge: BridgeFig, quad: QuadFig };
+export const FIGS = { system: SystemFig, cascade: CascadeFig, bridge: BridgeFig, quad: QuadFig, ...FIGS2 };
