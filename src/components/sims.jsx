@@ -285,4 +285,38 @@ export function SizingSim() {
   );
 }
 
-export const SIMS = { hover: HoverSim, mixer: MixerSim, motor: MotorSim, battery: BatterySim, filter: FilterSim, pid: PidSim, link: LinkSim, sizing: SizingSim };
+export function SurveySim() {
+  const [alt, setAlt] = useState(50), [f, setF] = useState(4), [pitch, setPitch] = useState(2.4), [speed, setSpeed] = useState(10), [shutter, setShutter] = useState(500), [side, setSide] = useState(0.7), [front, setFront] = useState(0.8), [field, setField] = useState(600);
+  const r = Ph.survey({ altM: alt, focalMm: f, pitchUm: pitch, pxAcross: 4000, pxAlong: 3000, speed, exposureS: 1 / shutter, sideOverlap: side, frontOverlap: front });
+  const lines = Math.ceil(field / r.lineSpacing) + 1;
+  const curve = []; for (let h = 10; h <= 150; h += 5) curve.push([h, 100 * Ph.survey({ altM: h, focalMm: f, pitchUm: pitch, pxAcross: 4000, pxAlong: 3000, speed, exposureS: 1 / shutter, sideOverlap: side, frontOverlap: front }).gsd]);
+  return (
+    <SimShell title="Survey planner (camera geometry)" intro="A 4000 × 3000-pixel camera pointing straight down. Change altitude, lens and speed to see ground resolution, coverage, blur and how many flight lines a square field needs."
+      tryThis={['Halve the altitude: GSD halves (sharper) but you need about twice as many lines.', 'Set shutter to 1/125 s at 12 m/s: blur goes above 1 pixel — slow down or add light.', 'Drop side overlap to 50%: fewer lines, but photogrammetry may fail to stitch.']}>
+      <div className="grid2">
+        <div>
+          <Slider label="Altitude" value={alt} min={10} max={150} step={5} unit="m" onChange={setAlt} />
+          <Slider label="Focal length" value={f} min={2} max={35} step={0.5} unit="mm" onChange={setF} />
+          <Slider label="Pixel pitch" value={pitch} min={0.8} max={6} step={0.1} unit="µm" onChange={setPitch} />
+          <Slider label="Ground speed" value={speed} min={1} max={20} step={0.5} unit="m/s" onChange={setSpeed} />
+          <Slider label="Shutter" value={shutter} min={60} max={2000} step={10} unit="s" fmt={(v) => '1/' + v} onChange={setShutter} />
+          <Slider label="Side overlap" value={side} min={0.3} max={0.9} step={0.05} onChange={setSide} />
+          <Slider label="Front overlap" value={front} min={0.5} max={0.9} step={0.05} onChange={setFront} />
+          <Slider label="Field width" value={field} min={100} max={3000} step={50} unit="m" onChange={setField} />
+        </div>
+        <div className="stats">
+          <Stat label="GSD" value={fmt(r.gsd * 100, 2)} unit="cm/px" tone="good" />
+          <Stat label="Footprint" value={`${fmt(r.width, 0)} × ${fmt(r.length, 0)}`} unit="m" />
+          <Stat label="Line spacing" value={fmt(r.lineSpacing, 1)} unit="m" />
+          <Stat label="Flight lines" value={lines} />
+          <Stat label="Photo every" value={fmt(r.triggerS, 2)} unit="s" />
+          <Stat label="Motion blur" value={fmt(r.blurPx, 2)} unit="px" tone={r.blurPx > 1 ? 'bad' : 'good'} />
+          <Stat label="Focal length in pixels" value={fmt(r.fPx, 0)} unit="px" />
+        </div>
+      </div>
+      <LineChart xLabel="Altitude (m)" yLabel="GSD (cm/pixel)" series={[{ name: 'Ground sample distance', color: C.a, pts: curve }]} markers={[{ x: alt, label: 'you' }]} />
+    </SimShell>
+  );
+}
+
+export const SIMS = { survey: SurveySim,  hover: HoverSim, mixer: MixerSim, motor: MotorSim, battery: BatterySim, filter: FilterSim, pid: PidSim, link: LinkSim, sizing: SizingSim };

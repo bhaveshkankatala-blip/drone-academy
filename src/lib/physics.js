@@ -178,3 +178,13 @@ export function sizing({ rotors = 4, propIn = 10, baseKg = 0.75, payloadKg = 0.3
   const energy = battKg * whPerKg * usable;
   return { auw, pHover: pTotal, minutes: (energy / pTotal) * 60, thrustMaxPerMotorG: (twr * auw * 1000) / rotors, hoverPerMotorG: (auw * 1000) / rotors, gPerW: hp.gPerW, diskLoading: hp.diskLoading };
 }
+
+/** Downward-looking camera survey geometry. Lengths in metres, pitch in µm, focal in mm. */
+export function survey({ altM, focalMm, pitchUm, pxAcross, pxAlong, speed, exposureS, sideOverlap, frontOverlap }) {
+  const gsd = (altM * pitchUm * 1e-6) / (focalMm * 1e-3);
+  const width = gsd * pxAcross, length = gsd * pxAlong;
+  const lineSpacing = (1 - sideOverlap) * width;
+  const photoSpacing = (1 - frontOverlap) * length;
+  const blurPx = (speed * exposureS) / gsd;
+  return { gsd, width, length, lineSpacing, photoSpacing, triggerS: photoSpacing / speed, blurPx, fPx: (focalMm * 1e-3) / (pitchUm * 1e-6) };
+}

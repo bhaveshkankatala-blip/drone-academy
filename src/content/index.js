@@ -1,13 +1,16 @@
 import { modulesA } from './modules-a.js';
 import { modulesB } from './modules-b.js';
 import { modulesC } from './modules-c.js';
+import { modulesD } from './modules-d.js';
 
 import { EXTRA } from './extra.js';
+import { EXTRA_NUMERICALS } from './extra-numericals.js';
 
-export const MODULES = [...modulesA, ...modulesB, ...modulesC].map((m, i) => ({
+export const MODULES = [...modulesA, ...modulesB, ...modulesC, ...modulesD].map((m, i) => ({
   ...m,
   n: i + 1,
   reels: [...m.reels, ...(EXTRA[m.id]?.reels || [])],
+  numericals: [...m.numericals, ...(EXTRA_NUMERICALS[m.id] || [])],
   quiz: [...m.quiz, ...(EXTRA[m.id]?.quiz || [])].map((q, j) => ({ ...q, key: `${m.id}:${j}`, module: m.id })),
 }));
 
@@ -19,6 +22,7 @@ export const TRACKS = [
   { name: 'Power train', ids: ['motors', 'esc', 'power'] },
   { name: 'Brains', ids: ['sensing', 'control', 'firmware'] },
   { name: 'Links & making it real', ids: ['rf', 'design', 'autonomy'] },
+  { name: 'Specialisations', ids: ['fixedwing', 'pcb', 'vision'] },
 ];
 
 /** Plan: ~6 weeks of preparation before the college project starts, then an 8-week project. */

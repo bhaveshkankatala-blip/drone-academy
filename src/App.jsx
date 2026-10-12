@@ -79,7 +79,7 @@ function MapView({ p, unlocked, go }) {
         <div>
           <p className="eyebrow">B.Tech EEE · drone engineering from first principles</p>
           <h1>Learn to design, build and fly drones like an engineer.</h1>
-          <p className="muted">12 modules · derivations · solved numericals · live simulators · labs · quizzes · reels for lazy days. Pass a quiz with 80% to unlock the next module.</p>
+          <p className="muted">{MODULES.length} modules · derivations · solved numericals · live simulators · labs · quizzes · reels for lazy days. Pass a quiz with 80% to unlock the next module.</p>
           <div className="row">
             <button className="btn big" onClick={() => go(`#/m/${nextMod.id}`)}><Icon name="play" size={16} /> {passedCount ? 'Continue' : 'Start'}: {nextMod.title}</button>
             <a className="btn ghost" href="#/reels"><Icon name="reels" size={16} /> Not in the mood? Reels</a>

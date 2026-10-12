@@ -66,3 +66,7 @@ test('integral removes the gust error, P-only does not', () => {
   const noI = P.simulateRateLoop({ kp: 0.012, ki: 0, kd: 0.0002 }).at(-1).w;
   assert.ok(Math.abs(withI - 100) < 2.5 && 100 - noI > 5, `${withI} ${noI}`);
 });
+test('survey GSD worked example', () => {
+  const r = P.survey({ altM: 50, focalMm: 4, pitchUm: 2.4, pxAcross: 4000, pxAlong: 3000, speed: 10, exposureS: 0.002, sideOverlap: 0.7, frontOverlap: 0.8 });
+  near(r.gsd, 0.03, 1e-9); near(r.width, 120, 1e-6); near(r.lineSpacing, 36, 1e-6); near(r.blurPx, 0.6667, 1e-3);
+});

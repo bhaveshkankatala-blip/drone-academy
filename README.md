@@ -4,8 +4,8 @@ Drone engineering from first principles for B.Tech EEE students — physics, mot
 
 ## What's inside
 
-- **12 modules** in 4 tracks (Foundations · Power train · Brains · Links & making it real). Each has: learning outcomes, theory with KaTeX equations, grid-paper derivations, original solved numericals with step-by-step solutions, "practise more from" book pointers, a hands-on lab with a checklist, industry skills, curated resources, and a 6-question quiz with explanations.
-- **8 interactive simulators** backed by a unit-tested physics library (`src/lib/physics.js`): hover power (momentum theory), mixer matrix, BLDC operating point, LiPo sag/flight time, complementary filter, rate-loop PID tuner, RF link budget, first-pass sizing.
+- **15 modules** in 5 tracks (Foundations · Power train · Brains · Links & making it real · Specialisations: fixed-wing/VTOL, PCB design, computer vision). Each has: learning outcomes, theory with KaTeX equations, grid-paper derivations, original solved numericals with step-by-step solutions, "practise more from" book pointers, a hands-on lab with a checklist, industry skills, curated resources, and an 8–10 question quiz with explanations.
+- **9 interactive simulators** backed by a unit-tested physics library (`src/lib/physics.js`): hover power (momentum theory), mixer matrix, BLDC operating point, LiPo sag/flight time, complementary filter, rate-loop PID tuner, RF link budget, first-pass sizing, camera survey planner.
 - **Tests:** quick quiz, 20-minute mock test, 90-second rapid fire, weak-spot drill (questions you got wrong).
 - **Reels:** a vertical swipe feed of flash cards, mini-MCQs and YouTube Shorts / Instagram links per topic; a *revision session* filter replays passed modules and your mistakes.
 - **Project plan:** 6 prep weeks + 8 project weeks with review gates, a starter BOM and a risk table (printable).
