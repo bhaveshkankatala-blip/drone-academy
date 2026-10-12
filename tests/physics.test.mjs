@@ -70,3 +70,9 @@ test('survey GSD worked example', () => {
   const r = P.survey({ altM: 50, focalMm: 4, pitchUm: 2.4, pxAcross: 4000, pxAlong: 3000, speed: 10, exposureS: 0.002, sideOverlap: 0.7, frontOverlap: 0.8 });
   near(r.gsd, 0.03, 1e-9); near(r.width, 120, 1e-6); near(r.lineSpacing, 36, 1e-6); near(r.blurPx, 0.6667, 1e-3);
 });
+test('filters: PT1 -3 dB and 45° at cutoff; notch kills its centre; alias', () => {
+  const a = P.filterChain(100, { pt1Hz: 100 }); near(P.toDb(a.mag), -3.01, 0.02); near(a.phaseDeg, -45, 1e-6);
+  near(P.filterChain(500, { notchHz: 500 }).mag, 0, 1e-9);
+  near(P.filterChain(100, { biquadHz: 100 }).mag, Math.SQRT1_2, 1e-9);
+  assert.equal(P.aliasOf(1200, 1000), 200); assert.equal(P.aliasOf(300, 1000), 300);
+});

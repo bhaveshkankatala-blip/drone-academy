@@ -188,3 +188,18 @@ export function survey({ altM, focalMm, pitchUm, pxAcross, pxAlong, speed, expos
   const blurPx = (speed * exposureS) / gsd;
   return { gsd, width, length, lineSpacing, photoSpacing, triggerS: photoSpacing / speed, blurPx, fPx: (focalMm * 1e-3) / (pitchUm * 1e-6) };
 }
+
+/** Continuous-time filter responses at frequency f (Hz). Returns {mag (linear), phaseDeg}. */
+const cpx = (re, im) => ({ re, im });
+const cdiv = (a, b) => { const d = b.re * b.re + b.im * b.im; return cpx((a.re * b.re + a.im * b.im) / d, (a.im * b.re - a.re * b.im) / d); };
+const cmul = (a, b) => cpx(a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re);
+export function filterChain(f, { pt1Hz = 0, biquadHz = 0, notchHz = 0, notchQ = 3 }) {
+  let h = cpx(1, 0);
+  if (pt1Hz > 0) h = cmul(h, cdiv(cpx(1, 0), cpx(1, f / pt1Hz)));
+  if (biquadHz > 0) { const x = f / biquadHz; h = cmul(h, cdiv(cpx(1, 0), cpx(1 - x * x, Math.SQRT2 * x))); }
+  if (notchHz > 0) { const x = f / notchHz; h = cmul(h, cdiv(cpx(1 - x * x, 0), cpx(1 - x * x, x / notchQ))); }
+  return { mag: Math.hypot(h.re, h.im), phaseDeg: (Math.atan2(h.im, h.re) * 180) / Math.PI };
+}
+export const toDb = (m) => 20 * Math.log10(Math.max(m, 1e-6));
+/** Frequency at which a tone appears after sampling at fs. */
+export function aliasOf(f, fs) { const r = f % fs; return r > fs / 2 ? fs - r : r; }

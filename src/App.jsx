@@ -3,7 +3,7 @@ import { MODULES, byId, TRACKS } from './content/index.js';
 import { useProgress, update, touchStreak, resetAll } from './lib/store.js';
 import { Icon, Rich, ExtLink, ytSearch } from './components/ui.jsx';
 import { SIMS } from './components/sims.jsx';
-import { Quiz, TestsView, ReelsView, PlanView, Tutor } from './components/views.jsx';
+import { Quiz, TestsView, ReelsView, PlanView, Tutor, FormulasView } from './components/views.jsx';
 
 function useHash() {
   const [h, setH] = useState(() => window.location.hash || '#/');
@@ -39,12 +39,13 @@ export default function App() {
     ['tests', 'test', 'Tests', '#/tests'],
     ['plan', 'plan', 'Project', '#/plan'],
   ];
+  const topExtra = [['formulas', 'calc', 'Formulas', '#/formulas']];
   const active = view === 'm' ? 'learn' : view;
   return (
     <div className={'app ' + (view === 'reels' ? 'is-reels' : '')}>
       <header className="top">
         <a href="#/" className="brand"><span className="logo">◆</span> AeroNet <small>Drone Academy</small></a>
-        <nav className="topnav">{nav.map(([k, ic, label, to]) => <a key={k} href={to} className={active === k ? 'on' : ''}><Icon name={ic} size={16} /> {label}</a>)}</nav>
+        <nav className="topnav">{[...nav, ...topExtra].map(([k, ic, label, to]) => <a key={k} href={to} className={active === k ? 'on' : ''}><Icon name={ic} size={16} /> {label}</a>)}</nav>
         <div className="hud">
           <span title="Daily streak"><Icon name="flame" size={16} /> {p.streak.count}</span>
           <span title="Experience points"><Icon name="star" size={16} /> {p.xp}</span>
@@ -59,6 +60,7 @@ export default function App() {
         {view === 'reels' && <ReelsView unlocked={unlocked} />}
         {view === 'tests' && <TestsView unlocked={unlocked} />}
         {view === 'plan' && <PlanView go={go} />}
+        {view === 'formulas' && <FormulasView />}
       </main>
 
       <nav className="bottomnav">{nav.map(([k, ic, label, to]) => <a key={k} href={to} className={active === k ? 'on' : ''}><Icon name={ic} size={20} /><span>{label}</span></a>)}
@@ -83,6 +85,7 @@ function MapView({ p, unlocked, go }) {
           <div className="row">
             <button className="btn big" onClick={() => go(`#/m/${nextMod.id}`)}><Icon name="play" size={16} /> {passedCount ? 'Continue' : 'Start'}: {nextMod.title}</button>
             <a className="btn ghost" href="#/reels"><Icon name="reels" size={16} /> Not in the mood? Reels</a>
+            <a className="btn ghost" href="#/formulas"><Icon name="calc" size={16} /> Formula sheet</a>
           </div>
         </div>
         <div className="ring" style={{ '--p': pct }}><b>{pct}%</b><span>{passedCount}/{MODULES.length} cleared</span></div>

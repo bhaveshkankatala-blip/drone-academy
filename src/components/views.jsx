@@ -1,7 +1,8 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { MODULES, byId, ALL_QUESTIONS, PLAN } from '../content/index.js';
+import { FORMULAS } from '../content/formulas.js';
 import { useProgress, recordQuiz, addXp, update } from '../lib/store.js';
-import { Icon, Rich, ExtLink, ytShorts, igTag } from './ui.jsx';
+import { Icon, Rich, ExtLink, ytShorts, igTag, Tex } from './ui.jsx';
 
 const shuffle = (arr, seed = Math.random()) => {
   const a = [...arr];
@@ -319,5 +320,23 @@ export function Tutor({ open, onClose, context }) {
         <button className="btn" onClick={send} disabled={busy || !input.trim()} aria-label="Send"><Icon name="send" size={16} /></button>
       </div>
     </aside>
+  );
+}
+
+/* ---------------- Formula sheet ---------------- */
+export function FormulasView() {
+  return (
+    <div className="stack formulas">
+      <h2>Formula sheet</h2>
+      <p className="muted">Every key equation from the course on one page. Tap a module name to open its derivations.</p>
+      {FORMULAS.map((g) => (
+        <section key={g.id} className="card" style={{ '--c': byId[g.id].color }}>
+          <h3><a href={`#/m/${g.id}`} style={{ color: byId[g.id].color }}>{byId[g.id].n}. {byId[g.id].title}</a></h3>
+          <div className="fgrid">{g.items.map(([name, tex, note]) => (
+            <div key={name} className="frow"><span className="fname">{name}</span><span className="fmath"><Tex m={tex} /></span>{note && <span className="muted small">{note}</span>}</div>
+          ))}</div>
+        </section>
+      ))}
+    </div>
   );
 }

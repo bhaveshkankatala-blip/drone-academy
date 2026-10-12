@@ -52,7 +52,7 @@ Industry expectation: every new feature is tested in SITL, with automated tests,
     ],
     lab: { title: 'SITL + FFT on a real log', kit: ['PC with Ubuntu/WSL2', 'ArduPilot SITL (sim_vehicle.py) or PX4 SITL', 'Mission Planner/QGroundControl', 'Any blackbox/DataFlash log'], steps: ['Install ArduPilot SITL; take off, fly a square mission, land.', 'Trigger a failsafe (RC loss) and watch the vehicle RTL.', 'Open a log; plot gyro data and its FFT (Mission Planner FFT or Python). Identify motor peaks.', 'Enable the harmonic notch (ArduPilot INS_HNTCH_*) in SITL with simulated vibration and compare.'], deliverable: 'Screenshots of the mission + an FFT plot with labelled motor harmonics.' },
     industry: ['STM32 + RTOS', 'ArduPilot/PX4 build & parameter tuning', 'Gyro FFT and notch filtering', 'SITL-first testing culture', 'Git + C++'],
-    sim: null,
+    sim: 'gyrofilter',
     resources: [
       { kind: 'docs', t: 'SITL Simulator (Software in the Loop)', by: 'ArduPilot dev docs', url: 'https://ardupilot.org/dev/docs/sitl-simulator-software-in-the-loop.html' },
       { kind: 'docs', t: 'DShot RPM Filtering', by: 'Betaflight docs', url: 'https://betaflight.com/docs/wiki/guides/current/DSHOT-RPM-Filtering' },

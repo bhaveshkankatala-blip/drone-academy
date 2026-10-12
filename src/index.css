@@ -242,3 +242,10 @@ input[type=range] { width: 100%; accent-color: var(--accent); height: 28px; }
   .derive { background-image: none; }
   .main { max-width: none; padding: 0; }
 }
+
+/* Formula sheet */
+.fgrid { display: grid; gap: .5rem; }
+.frow { display: grid; grid-template-columns: minmax(130px, 1fr) minmax(0, 2fr) auto; gap: .8rem; align-items: center; border-top: 1px solid var(--line); padding-top: .5rem; }
+.frow .fname { font-weight: 600; font-size: .9rem; }
+.frow .fmath { overflow-x: auto; }
+@media (max-width: 600px) { .frow { grid-template-columns: 1fr; gap: .2rem; } }

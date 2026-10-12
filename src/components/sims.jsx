@@ -319,4 +319,41 @@ export function SurveySim() {
   );
 }
 
-export const SIMS = { survey: SurveySim,  hover: HoverSim, mixer: MixerSim, motor: MotorSim, battery: BatterySim, filter: FilterSim, pid: PidSim, link: LinkSim, sizing: SizingSim };
+export function GyroFilterSim() {
+  const [rpm, setRpm] = useState(24000), [fs, setFs] = useState(4000), [pt1, setPt1] = useState(150), [bq, setBq] = useState(0), [notchOn, setNotchOn] = useState(true), [q, setQ] = useState(3), [xf, setXf] = useState(50);
+  const f1 = rpm / 60;
+  const cfg = { pt1Hz: pt1, biquadHz: bq, notchHz: notchOn ? f1 : 0, notchQ: q };
+  const fmax = Math.min(fs / 2, 2000);
+  const pts = []; for (let f = 1; f <= fmax; f += fmax / 300) pts.push([f, Ph.toDb(Ph.filterChain(f, cfg).mag)]);
+  const atMotor = Ph.toDb(Ph.filterChain(f1, cfg).mag), at2 = Ph.toDb(Ph.filterChain(2 * f1, cfg).mag);
+  const lag = -Ph.filterChain(xf, cfg).phaseDeg, delayMs = (lag / 360 / xf) * 1000;
+  const alias = Ph.aliasOf(f1, fs);
+  return (
+    <SimShell title="Gyro filter designer" intro="Motor noise sits at rpm/60 and its harmonics. Stack a low-pass (PT1), an optional 2nd-order low-pass, and a notch on the motor frequency, then see how much noise is removed and how much delay you pay at your control crossover."
+      tryThis={['Turn the notch off: the motor tone now gets only about −9 dB. Lower the PT1 cutoff to win it back and watch the delay at 50 Hz climb.', 'Lower the sample rate to 1 kHz at 24,000 rpm: the 400 Hz motor tone is fine, but at 40,000 rpm it aliases.', 'Raise notch Q: narrower notch, less delay, but it must track rpm exactly — that is what the RPM filter does.']}>
+      <div className="grid2">
+        <div>
+          <Slider label="Motor speed" value={rpm} min={3000} max={45000} step={500} unit="rpm" onChange={setRpm} />
+          <Slider label="Gyro sample rate" value={fs} min={500} max={8000} step={100} unit="Hz" onChange={setFs} />
+          <Slider label="PT1 low-pass cutoff (0 = off)" value={pt1} min={0} max={500} step={5} unit="Hz" onChange={setPt1} />
+          <Slider label="Biquad low-pass cutoff (0 = off)" value={bq} min={0} max={500} step={5} unit="Hz" onChange={setBq} />
+          <div className="seg"><button className={notchOn ? 'on' : ''} onClick={() => setNotchOn(!notchOn)}>Notch on motor fundamental: {notchOn ? 'ON' : 'OFF'}</button></div>
+          <Slider label="Notch Q (sharpness)" value={q} min={0.5} max={10} step={0.5} onChange={setQ} />
+          <Slider label="Control crossover to check" value={xf} min={10} max={150} step={5} unit="Hz" onChange={setXf} />
+        </div>
+        <div className="stats">
+          <Stat label="Motor fundamental" value={fmt(f1, 0)} unit="Hz" />
+          <Stat label="Appears after sampling at" value={fmt(alias, 0)} unit="Hz" tone={alias !== f1 ? 'bad' : ''} />
+          <Stat label="Attenuation at f₁" value={atMotor < -40 ? '< −40' : fmt(atMotor, 1)} unit="dB" tone="good" />
+          <Stat label="Attenuation at 2f₁" value={fmt(at2, 1)} unit="dB" />
+          <Stat label={`Phase lag at ${xf} Hz`} value={fmt(lag, 1)} unit="°" tone={lag > 30 ? 'bad' : ''} />
+          <Stat label="Equivalent delay" value={fmt(delayMs, 2)} unit="ms" />
+        </div>
+      </div>
+      <LineChart xLabel="Frequency (Hz)" yLabel="Gain (dB)" yMin={-60} yMax={3} series={[{ name: 'Filter chain response', color: C.a, pts }]} markers={[{ x: f1, label: 'f₁' }, ...(2 * f1 < fmax ? [{ x: 2 * f1, label: '2f₁' }] : []), { x: xf, label: 'xover' }]} />
+      {alias !== f1 && <p className="warn">The motor tone is above Nyquist ({fs / 2} Hz) and folds down to {fmt(alias, 0)} Hz. No digital filter after sampling can tell it apart from real motion there.</p>}
+    </SimShell>
+  );
+}
+
+export const SIMS = { gyrofilter: GyroFilterSim, survey: SurveySim,  hover: HoverSim, mixer: MixerSim, motor: MotorSim, battery: BatterySim, filter: FilterSim, pid: PidSim, link: LinkSim, sizing: SizingSim };
