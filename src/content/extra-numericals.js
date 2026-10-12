@@ -48,4 +48,16 @@ export const EXTRA_NUMERICALS = {
     { q: 'A drone is 800 m from home, returns at 8 m/s and draws 200 W. How much energy does the RTL leg need (excluding landing)?', steps: ['Time = 800 / 8 = 100 s.', 'Energy = 200 × 100 = 20,000 J = **5.6 Wh**.'], answer: '≈ 5.6 Wh', why: 'Battery failsafes should trigger with this energy plus landing and wind reserve still in the pack.' },
     { q: 'At 12 m/s with a maximum braking deceleration of 4 m/s², how far does the drone travel while stopping?', steps: ['d = v² / (2a) = 144 / 8 = **18 m**.'], answer: '18 m', why: 'Add this to GPS uncertainty when setting geofence buffers.' },
   ],
+  fixedwing: [
+    { q: 'The 2 kg plane (S = 0.4 m², C_L,max = 1.2) must take off from a college field at sea level. With a 1.2× safety margin over stall, what is the minimum launch speed?', steps: ['V_s = 8.17 m/s (from Q1).', 'Launch ≥ 1.2 × 8.17 = **9.8 m/s** (≈ 35 km/h) — a strong hand launch or a bungee.'], answer: '≈ 9.8 m/s', why: 'Why heavier planes need catapults or VTOL.' },
+    { q: 'On a 35 °C afternoon at Warangal (≈ 270 m altitude) air density is about 1.11 kg/m³. By what factor does stall speed rise compared with sea-level ISA?', steps: ['V_s ∝ 1/√ρ.', 'Factor = √(1.225/1.11) = √1.104 = **1.05** → about 5% faster stall.'], answer: '≈ 5% higher stall speed', why: 'Hot days need longer take-off runs and more airspeed margin.' },
+  ],
+  pcb: [
+    { q: 'A 100 nF decoupling capacitor must supply a 100 mA current spike lasting 10 ns. How much does the rail droop?', steps: ['ΔV = I·Δt / C = 0.1 × 10×10⁻⁹ / 100×10⁻⁹ = **10 mV**.'], answer: '≈ 10 mV', why: 'Small, fast spikes are fed by the local cap; that is why it sits right at the pin.' },
+    { q: 'A 5 V, 2 A buck regulator runs from a 6S pack (22.2 V nominal) at 90% efficiency. Find input current and heat dissipated.', steps: ['P_out = 10 W → P_in = 10/0.9 = 11.1 W.', 'I_in = 11.1 / 22.2 = **0.5 A**; heat = 11.1 − 10 = **1.1 W**.'], answer: '0.5 A in; 1.1 W heat', why: 'A linear regulator would burn (22.2 − 5) × 2 = 34 W here.' },
+  ],
+  vision: [
+    { q: 'A YOLO-class detector runs at 20 FPS on a Jetson with 30 ms of camera and transfer delay. What is the total latency, and how far does a target moving at 5 m/s travel in that time?', steps: ['Inference time = 1/20 = 50 ms → total ≈ 50 + 30 = **80 ms**.', 'Distance = 5 × 0.08 = **0.4 m**.'], answer: '≈ 80 ms; 0.4 m', why: 'Tracking controllers predict ahead by the measured latency.' },
+    { q: 'At 50 m with GSD 3 cm and 80% front overlap (3000-px image length), how often must the camera trigger at 10 m/s?', steps: ['Image length on ground = 0.03 × 3000 = 90 m.', 'Spacing = (1 − 0.8) × 90 = 18 m → every 18/10 = **1.8 s**.'], answer: 'Every 1.8 s', why: 'Matches the survey simulator\'s "photo every" value.' },
+  ],
 };

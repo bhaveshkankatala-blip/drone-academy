@@ -33,6 +33,7 @@ export function Quiz({ items, moduleId, title, timeLimit, onFinish }) {
     setDone(res);
     onFinish && onFinish(res);
   }
+  useEffect(() => { if (revealed) { const el = document.querySelector('.quiz .explain'); if (el && el.scrollIntoView) el.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } }, [revealed]);
   const q = order[i];
   const choose = (k) => {
     if (done || (instant && revealed)) return;
@@ -228,8 +229,23 @@ export function ReelsView({ unlocked }) {
   const [filter, setFilter] = useState('all');
   const feed = useMemo(() => buildFeed(filter, p), [filter]); // eslint-disable-line
   const ref = useRef(null);
+  const step = (dir) => { const el = ref.current; if (el) el.scrollBy({ top: dir * el.clientHeight, behavior: 'smooth' }); };
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName)) return;
+      if (e.key === 'ArrowDown' || e.key === 'j' || e.key === 'PageDown') { e.preventDefault(); step(1); }
+      if (e.key === 'ArrowUp' || e.key === 'k' || e.key === 'PageUp') { e.preventDefault(); step(-1); }
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
   return (
     <div className="reels-wrap">
+      <div className="reel-nav" aria-hidden="false">
+        <button className="icon-btn" onClick={() => step(-1)} aria-label="Previous card"><Icon name="back" style={{ transform: 'rotate(90deg)' }} /></button>
+        <button className="icon-btn" onClick={() => step(1)} aria-label="Next card"><Icon name="next" style={{ transform: 'rotate(90deg)' }} /></button>
+        <span className="muted small">↑ ↓ keys</span>
+      </div>
       <div className="reels-filter">
         <select value={filter} onChange={(e) => { setFilter(e.target.value); ref.current && (ref.current.scrollTop = 0); }}>
           <option value="all">All topics (shuffle)</option>

@@ -75,6 +75,7 @@ function MapView({ p, unlocked, go }) {
   const passedCount = MODULES.filter((m) => p.passed[m.id]).length;
   const nextMod = MODULES.find((m) => unlocked.includes(m.id) && !p.passed[m.id]) || MODULES[0];
   const pct = Math.round((passedCount / MODULES.length) * 100);
+  const last = p.last && byId[p.last.id];
   return (
     <div className="stack">
       <section className="hero">
@@ -83,12 +84,18 @@ function MapView({ p, unlocked, go }) {
           <h1>Learn to design, build and fly drones like an engineer.</h1>
           <p className="muted">{MODULES.length} modules · derivations · solved numericals · live simulators · labs · quizzes · reels for lazy days. Pass a quiz with 80% to unlock the next module.</p>
           <div className="row">
-            <button className="btn big" onClick={() => go(`#/m/${nextMod.id}`)}><Icon name="play" size={16} /> {passedCount ? 'Continue' : 'Start'}: {nextMod.title}</button>
+            {last ? (
+              <button className="btn big" onClick={() => go(`#/m/${last.id}/${p.last.tab || 'learn'}`)}><Icon name="play" size={16} /> Resume: {last.title}</button>
+            ) : (
+              <button className="btn big" onClick={() => go(`#/m/${nextMod.id}`)}><Icon name="play" size={16} /> {passedCount ? 'Continue' : 'Start'}: {nextMod.title}</button>
+            )}
+            {last && last.id !== nextMod.id && !p.passed[nextMod.id] && <button className="btn ghost" onClick={() => go(`#/m/${nextMod.id}`)}>Next to clear: {nextMod.title}</button>}
             <a className="btn ghost" href="#/reels"><Icon name="reels" size={16} /> Not in the mood? Reels</a>
             <a className="btn ghost" href="#/formulas"><Icon name="calc" size={16} /> Formula sheet</a>
           </div>
         </div>
         <div className="ring" style={{ '--p': pct }}><b>{pct}%</b><span>{passedCount}/{MODULES.length} cleared</span></div>
+        <div className="mini-progress" aria-label={`${passedCount} of ${MODULES.length} modules cleared`}><div className="bar"><i style={{ width: pct + '%' }} /></div><span>{passedCount}/{MODULES.length} modules cleared · {pct}%</span></div>
       </section>
 
       <label className="toggle">
@@ -138,6 +145,8 @@ function Locked({ mod, go }) {
 const TABS = [['learn', 'Learn'], ['solved', 'Solved numericals'], ['sim', 'Simulator'], ['lab', 'Lab & industry'], ['resources', 'Resources'], ['quiz', 'Quiz']];
 
 function ModuleView({ mod, tab, p, go }) {
+  useEffect(() => { update(() => ({ last: { id: mod.id, tab } })); }, [mod.id, tab]);
+  useEffect(() => { const el = document.querySelector('.tabs a.on'); if (el && el.scrollIntoView) el.scrollIntoView({ inline: 'center', block: 'nearest' }); }, [tab]);
   const tabs = TABS.filter(([k]) => k !== 'sim' || mod.sim);
   const prev = MODULES[mod.n - 2], next = MODULES[mod.n];
   const Sim = mod.sim && SIMS[mod.sim];
@@ -150,18 +159,26 @@ function ModuleView({ mod, tab, p, go }) {
         <p className="muted">{mod.summary}</p>
         <p className="eee"><Icon name="bolt" size={14} /> {mod.eee}</p>
       </div>
-      <div className="tabs" role="tablist">{tabs.map(([k, l]) => <a key={k} role="tab" href={`#/m/${mod.id}/${k}`} className={tab === k ? 'on' : ''}>{l}{k === 'quiz' && p.passed[mod.id] ? ' ✓' : ''}</a>)}</div>
+      <div className="tabs-wrap"><div className="tabs" role="tablist">{tabs.map(([k, l]) => <a key={k} role="tab" href={`#/m/${mod.id}/${k}`} className={tab === k ? 'on' : ''}>{l}{k === 'quiz' && p.passed[mod.id] ? ' ✓' : ''}</a>)}</div></div>
 
       {tab === 'learn' && (
+        <div className="learn-grid">
+        <aside className="toc" aria-label="On this page">
+          <b>On this page</b>
+          {mod.sections.map((s, i) => <button key={s.h} onClick={() => document.getElementById('sec-' + i)?.scrollIntoView({ behavior: 'smooth', block: 'start' })}>{s.h}</button>)}
+          <a href={`#/m/${mod.id}/solved`}>Solved numericals →</a>
+          <a href={`#/m/${mod.id}/quiz`}>Quiz →</a>
+        </aside>
         <div className="stack">
           <div className="card outcomes"><h3>By the end you can</h3><ul>{mod.outcomes.map((o) => <li key={o}><Rich text={o} /></li>)}</ul></div>
-          {mod.sections.map((s) => (
-            <section key={s.h} className={s.type === 'derive' ? 'derive' : 'sec'}>
+          {mod.sections.map((s, i) => (
+            <section key={s.h} id={'sec-' + i} className={s.type === 'derive' ? 'derive' : 'sec'}>
               <h2>{s.type === 'derive' && <span className="hand">derivation ✎ </span>}{s.h}</h2>
               <Rich text={s.body} />
             </section>
           ))}
           <div className="row between"><span /><a className="btn" href={`#/m/${mod.id}/solved`}>Next: solved numericals <Icon name="next" size={16} /></a></div>
+        </div>
         </div>
       )}
 
