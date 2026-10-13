@@ -1,7 +1,7 @@
 // AeroNet service worker.
 // Pages: network-first (so a new deploy is picked up immediately, cached copy only when offline).
 // Hashed build assets + vendored KaTeX: cache-first (their file names change when content changes).
-const CACHE = 'aeronet-v4';
+const CACHE = 'aeronet-v5';
 // Paths are relative to this file, so the app works at / (Netlify) and at /repo/ (GitHub Pages).
 const SHELL = ['./', './index.html', './manifest.json', './vendor/katex/katex.min.js', './vendor/katex/katex.min.css'];
 const INDEX = new URL('./index.html', self.location).href;
