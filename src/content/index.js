@@ -3,12 +3,19 @@ import { modulesB } from './modules-b.js';
 import { modulesC } from './modules-c.js';
 import { modulesD } from './modules-d.js';
 import { moduleMcu } from './modules-mcu.js';
+import { moduleStart } from './modules-start.js';
+import { BEGINNER_A } from './beginner-a.js';
+import { BEGINNER_B } from './beginner-b.js';
+import { BEGINNER_C } from './beginner-c.js';
 
 import { EXTRA } from './extra.js';
 import { EXTRA_NUMERICALS } from './extra-numericals.js';
 
-const ORDER = ['systems', 'physics', 'dynamics', 'motors', 'esc', 'power', 'mcu', 'sensing', 'control', 'firmware', 'rf', 'design', 'autonomy', 'fixedwing', 'pcb', 'vision'];
-const ALL = [...modulesA, ...modulesB, ...modulesC, ...modulesD, moduleMcu];
+// Beginner-friendly order: the subjects a 3rd-semester EEE student already studies come first
+// (batteries → circuits, motors → machines, ESCs → analog electronics); heavy maths (dynamics, control) later.
+const ORDER = ['start', 'systems', 'power', 'motors', 'esc', 'physics', 'mcu', 'sensing', 'dynamics', 'control', 'firmware', 'rf', 'design', 'autonomy', 'fixedwing', 'pcb', 'vision'];
+const ALL = [moduleStart, ...modulesA, ...modulesB, ...modulesC, ...modulesD, moduleMcu];
+export const BEGINNER = { ...BEGINNER_A, ...BEGINNER_B, ...BEGINNER_C };
 // Figures injected at the top of named sections (see components/figures*.jsx).
 export const FIG_MAP = {
   physics: { 'Derivation: momentum (actuator-disk) theory': 'actuator' },
@@ -30,9 +37,11 @@ const withFigs = (m) => ({ ...m, sections: m.sections.map((s) => (FIG_MAP[m.id]?
 
 export const MODULES = ORDER.map((id) => withFigs(ALL.find((m) => m.id === id))).map((m, i) => ({
   ...m,
-  n: i + 1,
+  n: i, // Start Here is module 0
   reels: [...m.reels, ...(EXTRA[m.id]?.reels || [])],
   numericals: [...m.numericals, ...(EXTRA_NUMERICALS[m.id] || [])],
+  nCore: m.numericals.length, // numericals[0..nCore) are Level 2 (guided); the rest are Level 3 (challenge)
+  beginner: BEGINNER[m.id] || null,
   quiz: [...m.quiz, ...(EXTRA[m.id]?.quiz || [])].map((q, j) => ({ ...q, key: `${m.id}:${j}`, module: m.id })),
 }));
 
@@ -40,22 +49,23 @@ export const byId = Object.fromEntries(MODULES.map((m) => [m.id, m]));
 export const ALL_QUESTIONS = MODULES.flatMap((m) => m.quiz);
 
 export const TRACKS = [
-  { name: 'Foundations', ids: ['systems', 'physics', 'dynamics'] },
-  { name: 'Power train', ids: ['motors', 'esc', 'power'] },
-  { name: 'Brains', ids: ['mcu', 'sensing', 'control', 'firmware'] },
-  { name: 'Links & making it real', ids: ['rf', 'design', 'autonomy'] },
-  { name: 'Specialisations', ids: ['fixedwing', 'pcb', 'vision'] },
+  { name: 'Start here', note: 'No new subjects needed', ids: ['start', 'systems'] },
+  { name: 'Power train', note: 'Uses what you study this semester: Circuits, Machines, Analog Electronics', ids: ['power', 'motors', 'esc'] },
+  { name: 'Flight & brains', note: 'Physics, microcontrollers and sensors', ids: ['physics', 'mcu', 'sensing'] },
+  { name: 'Control & firmware', note: 'Heavier maths: read Simple first, come back after Control Systems', ids: ['dynamics', 'control', 'firmware'] },
+  { name: 'Links & making it real', note: 'Radio, design and your project', ids: ['rf', 'design', 'autonomy'] },
+  { name: 'Specialisations', note: 'Pick one that matches your interest', ids: ['fixedwing', 'pcb', 'vision'] },
 ];
 
 /** Plan: ~6 weeks of preparation before the college project starts, then an 8-week project. */
 export const PLAN = {
   prep: [
-    { week: 'Prep week 1', focus: 'Foundations', modules: ['systems', 'physics'], doing: ['Finish both modules + quizzes', 'Hover-power numericals by hand, check with the sim', 'Start a project notebook (paper or Notion)'], output: 'Block diagram + hover power estimate for a 1–1.5 kg drone' },
-    { week: 'Prep week 2', focus: 'Dynamics & motors', modules: ['dynamics', 'motors'], doing: ['Write the Python 3-D simulator (lab)', 'Motor numericals; read one real motor datasheet end-to-end'], output: 'Simulator repo on GitHub' },
-    { week: 'Prep week 3', focus: 'Power electronics & batteries', modules: ['esc', 'power'], doing: ['ESC loss numericals', 'Battery safety SOP for your team', 'If possible: scope an ESC in the college lab'], output: 'Team LiPo safety SOP (1 page)' },
-    { week: 'Prep week 4', focus: 'Microcontrollers, sensing & control', modules: ['mcu', 'sensing', 'control'], doing: ['IMU + complementary filter on Arduino/STM32', 'Add PID to your simulator; tune it'], output: 'IMU fusion plot + simulator flying a square' },
-    { week: 'Prep week 5', focus: 'Firmware & RF', modules: ['firmware', 'rf'], doing: ['Install ArduPilot SITL, fly a mission', 'Link-budget for your planned radios (India 866 MHz / 2.4 GHz)'], output: 'SITL mission video' },
-    { week: 'Prep week 6', focus: 'Design & rules', modules: ['design', 'autonomy'], doing: ['Write requirements with your team/guide', 'Run the sizing loop; shortlist parts; draft BOM', 'Check DigitalSky map for your test site; ask college about R&D permissions'], output: 'Requirements + sizing + draft BOM ready on project day 1' },
+    { week: 'Prep week 1', focus: 'Start here, system view & batteries', modules: ['start', 'systems', 'power'], doing: ['Read each module in Simple view first, then Engineer', 'Measure a battery\'s internal resistance (Start Here lab)', 'Start a project notebook (paper or Notion)'], output: 'Block diagram of a drone with voltages on every arrow + battery R_int table' },
+    { week: 'Prep week 2', focus: 'Motors, ESCs & flight physics', modules: ['motors', 'esc', 'physics'], doing: ['Motor and ESC starter examples, then Level 2 numericals', 'Read one real motor datasheet thrust table end-to-end', 'Hover-power numericals by hand; check with the hover simulator'], output: 'Hover power and current estimate for a 1–1.5 kg drone' },
+    { week: 'Prep week 3', focus: 'Microcontrollers & sensors', modules: ['mcu', 'sensing'], doing: ['Blink an LED and read a voltage on Arduino or STM32', 'Read an MPU-6050 IMU and plot gyro vs accelerometer angle', 'Write a complementary filter'], output: 'IMU angle plot with and without the filter' },
+    { week: 'Prep week 4', focus: 'Dynamics & control (Simple view first)', modules: ['dynamics', 'control'], doing: ['Play with the mixer and PID simulators until the behaviour makes sense', 'Watch the MATLAB PID series', 'Optional: start the Python simulator lab'], output: 'Screenshots of a well-tuned and a badly-tuned PID response, with your explanation' },
+    { week: 'Prep week 5', focus: 'Firmware & RF', modules: ['firmware', 'rf'], doing: ['Install ArduPilot SITL / Mission Planner simulation and fly a mission', 'Link budget for your planned radios (India 865–867 MHz / 2.4 GHz)'], output: 'SITL mission screen recording' },
+    { week: 'Prep week 6', focus: 'Design & rules', modules: ['design', 'autonomy'], doing: ['Write requirements with your team/guide', 'Run the sizing loop; shortlist parts; draft BOM', 'Check the DigitalSky map for your test site; ask the college about R&D permissions'], output: 'Requirements + sizing + draft BOM ready on project day 1' },
   ],
   project: [
     { week: 'Project week 1', tasks: ['Freeze requirements with guide', 'Mass/power budget sheet', 'Order parts (allow for delivery delays)'], gate: 'Design review 1: requirements + sizing approved' },

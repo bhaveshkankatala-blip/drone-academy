@@ -49,3 +49,13 @@ Numericals are original problems; book pointers say where to practise more. Plea
 
 - `lucide-react` and Tailwind are no longer used by the code; they are left in `package.json` so the existing lockfile keeps working. Remove them with `npm uninstall lucide-react tailwindcss postcss autoprefixer` and delete `postcss.config.js` / `tailwind.config.js` if you like.
 - KaTeX is vendored in `public/vendor/katex` (MIT licence) so equations render offline.
+
+## Beginner layer (v2.1)
+
+- **Module 0 "Start Here"** links drone parts to 3rd-semester subjects (Circuits, EMI, Machines, Analog Electronics).
+- **Simple / Engineer** reading levels for every module (`src/content/beginner-*.js`).
+- **Study path** checklist per module: Simple read → video → quick check → Engineer read → deeper video → starter examples → numericals → simulator → quiz.
+- **Checked videos**: each points to one specific YouTube video or playlist, with its title and channel confirmed through YouTube's oEmbed endpoint.
+- **Numericals in three levels**: worked starters (every step has a "why"), guided problems with one hint at a time, and challenge problems.
+- **Tap-to-explain jargon** (`src/content/glossary.js`) plus a Jargon A–Z page.
+- Beginner module order: batteries, motors and ESCs come before dynamics and control.

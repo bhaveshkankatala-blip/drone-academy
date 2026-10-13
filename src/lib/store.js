@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 const KEY = 'aeronet-progress-v2';
-const empty = { passed: {}, attempts: {}, xp: 0, labs: {}, studyMode: false, streak: { day: '', count: 0 }, missed: {}, reelsSeen: 0, best: {} };
+const empty = { passed: {}, attempts: {}, xp: 0, labs: {}, studyMode: false, streak: { day: '', count: 0 }, missed: {}, reelsSeen: 0, best: {}, level: 'simple', path: {} };
 
 function load() {
   try {
@@ -68,3 +68,9 @@ export function recordQuiz(moduleId, items, answers) {
 }
 
 export function resetAll() { state = { ...empty }; save(); }
+
+/** Tick (or untick) one step of a module's study path. */
+export function setStep(moduleId, key, done = true) {
+  update((s) => ({ path: { ...s.path, [moduleId]: { ...(s.path[moduleId] || {}), [key]: done } } }));
+  if (done) touchStreak();
+}

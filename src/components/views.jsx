@@ -193,7 +193,7 @@ function FlashCard({ c }) {
   return (
     <button className={'reel-card flash ' + (flip ? 'flipped' : '')} onClick={() => setFlip(!flip)}>
       <span className="chip" style={{ borderColor: c.m.color, color: c.m.color }}>{c.m.title}</span>
-      <div className="reel-face">{flip ? <Rich text={c.back} /> : <h2>{c.front}</h2>}</div>
+      <div className="reel-face">{flip ? <Rich text={c.back} gloss={false} /> : <h2>{c.front}</h2>}</div>
       <span className="muted small">{flip ? 'Tap to flip back · swipe up for next' : 'Think of the answer, then tap'}</span>
     </button>
   );
@@ -328,7 +328,7 @@ export function Tutor({ open, onClose, context }) {
     <aside className="tutor">
       <div className="tutor-head"><b><Icon name="bot" /> Tutor</b><button className="icon-btn" onClick={onClose} aria-label="Close"><Icon name="x" /></button></div>
       <div className="tutor-body">
-        {msgs.map((m, i) => <div key={i} className={'msg ' + m.role}><Rich text={m.text} /></div>)}
+        {msgs.map((m, i) => <div key={i} className={'msg ' + m.role}><Rich text={m.text} gloss={false} /></div>)}
         {busy && <div className="msg model muted">Thinking…</div>}
         <div ref={end} />
       </div>

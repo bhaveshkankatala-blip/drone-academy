@@ -1,5 +1,6 @@
 import React, { useEffect, useState, Fragment } from 'react';
 import { FIGS } from './figures.jsx';
+import { GLOSSARY, GLOSS_RE, GLOSS_LOOKUP } from '../content/glossary.js';
 
 /* ---------- Icons (inline, no dependency) ---------- */
 const P = {
@@ -56,23 +57,42 @@ export function Tex({ m, block }) {
 /* ---------- Rich text: a tiny markup so content files stay readable ----------
    Paragraphs split by blank lines. Lines starting "- " are bullets, "1. " numbered.
    $$...$$ display math, $...$ inline math, **bold**, `code`, ```code blocks```, > callout. */
-function inline(text, keyBase) {
+/* Jargon: the first time a glossary word appears in a block of text it becomes a tappable term. */
+export function openTerm(term) { window.dispatchEvent(new CustomEvent('gloss', { detail: term })); }
+function glossify(str, keyBase, seen) {
+  if (!seen) return [str];
+  const out = [];
+  let last = 0, m, i = 0;
+  GLOSS_RE.lastIndex = 0;
+  while ((m = GLOSS_RE.exec(str))) {
+    const word = m[2], g = GLOSS_LOOKUP.get(word), start = m.index + m[1].length;
+    if (!g || seen.has(g.term)) continue;
+    seen.add(g.term);
+    if (start > last) out.push(str.slice(last, start));
+    out.push(<button key={keyBase + 'g' + i++} type="button" className="term" onClick={() => openTerm(g.term)}>{word}</button>);
+    last = start + word.length;
+  }
+  if (last < str.length) out.push(str.slice(last));
+  return out;
+}
+function inline(text, keyBase, seen) {
   const parts = [];
   const re = /(\$[^$]+\$|\*\*[^*]+\*\*|`[^`]+`)/g;
   let last = 0, m, i = 0;
   while ((m = re.exec(text))) {
-    if (m.index > last) parts.push(text.slice(last, m.index));
+    if (m.index > last) parts.push(...glossify(text.slice(last, m.index), keyBase + 't' + i, seen));
     const tok = m[0];
     if (tok.startsWith('$')) parts.push(<Tex key={keyBase + i++} m={tok.slice(1, -1)} />);
-    else if (tok.startsWith('**')) parts.push(<strong key={keyBase + i++}>{tok.slice(2, -2)}</strong>);
+    else if (tok.startsWith('**')) parts.push(<strong key={keyBase + i++}>{glossify(tok.slice(2, -2), keyBase + 'b' + i, seen)}</strong>);
     else parts.push(<code key={keyBase + i++}>{tok.slice(1, -1)}</code>);
     last = m.index + tok.length;
   }
-  if (last < text.length) parts.push(text.slice(last));
+  if (last < text.length) parts.push(...glossify(text.slice(last), keyBase + 'e', seen));
   return parts;
 }
-export function Rich({ text, className = '' }) {
+export function Rich({ text, className = '', gloss = true }) {
   if (!text) return null;
+  const seen = gloss ? new Set() : null;
   const blocks = [];
   const chunks = String(text).split(/```/);
   chunks.forEach((chunk, ci) => {
@@ -90,12 +110,12 @@ export function Rich({ text, className = '' }) {
       else if (/^\[\[fig:\w+\]\]$/.test(p) && FIGS[p.slice(6, -2)]) { const F = FIGS[p.slice(6, -2)]; blocks.push(<F key={k} />); }
       else if (lines.every((l) => l.startsWith('|'))) {
         const rows = lines.filter((l) => !/^\|[\s:-|]+\|$/.test(l)).map((l) => l.replace(/^\||\|$/g, '').split('|').map((c) => c.trim()));
-        blocks.push(<div key={k} className="table-wrap"><table><thead><tr>{rows[0].map((c, i) => <th key={i}>{inline(c, k + 'h' + i)}</th>)}</tr></thead><tbody>{rows.slice(1).map((r, ri) => <tr key={ri}>{r.map((c, i) => <td key={i}>{inline(c, k + ri + 'd' + i)}</td>)}</tr>)}</tbody></table></div>);
+        blocks.push(<div key={k} className="table-wrap"><table><thead><tr>{rows[0].map((c, i) => <th key={i}>{inline(c, k + 'h' + i, seen)}</th>)}</tr></thead><tbody>{rows.slice(1).map((r, ri) => <tr key={ri}>{r.map((c, i) => <td key={i}>{inline(c, k + ri + 'd' + i, seen)}</td>)}</tr>)}</tbody></table></div>);
       }
-      else if (lines.every((l) => /^- /.test(l))) blocks.push(<ul key={k}>{lines.map((l, li) => <li key={li}>{inline(l.slice(2), k + li)}</li>)}</ul>);
-      else if (lines.every((l) => /^\d+\. /.test(l))) blocks.push(<ol key={k}>{lines.map((l, li) => <li key={li}>{inline(l.replace(/^\d+\. /, ''), k + li)}</li>)}</ol>);
-      else if (p.startsWith('> ')) blocks.push(<div key={k} className="callout">{inline(p.slice(2), k)}</div>);
-      else blocks.push(<p key={k}>{lines.map((l, li) => <Fragment key={li}>{li > 0 && <br />}{inline(l, k + li)}</Fragment>)}</p>);
+      else if (lines.every((l) => /^- /.test(l))) blocks.push(<ul key={k}>{lines.map((l, li) => <li key={li}>{inline(l.slice(2), k + li, seen)}</li>)}</ul>);
+      else if (lines.every((l) => /^\d+\. /.test(l))) blocks.push(<ol key={k}>{lines.map((l, li) => <li key={li}>{inline(l.replace(/^\d+\. /, ''), k + li, seen)}</li>)}</ol>);
+      else if (p.startsWith('> ')) blocks.push(<div key={k} className="callout">{inline(p.slice(2), k, seen)}</div>);
+      else blocks.push(<p key={k}>{lines.map((l, li) => <Fragment key={li}>{li > 0 && <br />}{inline(l, k + li, seen)}</Fragment>)}</p>);
     });
   });
   return <div className={'rich ' + className}>{blocks}</div>;
@@ -184,3 +204,27 @@ export function ExtLink({ href, children, className = '' }) {
 export const ytSearch = (q) => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
 export const ytShorts = (q) => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q + ' #shorts');
 export const igTag = (t) => 'https://www.instagram.com/explore/tags/' + encodeURIComponent(t.replace(/^#/, '')) + '/';
+
+/* ---------- Jargon sheet: opened by tapping a highlighted term anywhere ---------- */
+export function GlossSheet() {
+  const [term, setTerm] = useState(null);
+  useEffect(() => {
+    const on = (e) => setTerm(e.detail);
+    const esc = (e) => { if (e.key === 'Escape') setTerm(null); };
+    window.addEventListener('gloss', on);
+    window.addEventListener('keydown', esc);
+    return () => { window.removeEventListener('gloss', on); window.removeEventListener('keydown', esc); };
+  }, []);
+  if (!term) return null;
+  const g = GLOSSARY.find((x) => x.term === term);
+  if (!g) return null;
+  return (
+    <div className="gloss-backdrop" onClick={() => setTerm(null)}>
+      <div className="gloss-sheet" role="dialog" aria-label={'Meaning of ' + g.term} onClick={(e) => e.stopPropagation()}>
+        <div className="row between"><b className="gloss-term">{g.term}</b><button className="icon-btn" onClick={() => setTerm(null)} aria-label="Close">✕</button></div>
+        <p>{g.def}</p>
+        <a className="small" href="#/glossary" onClick={() => setTerm(null)}>All jargon (A–Z) →</a>
+      </div>
+    </div>
+  );
+}
